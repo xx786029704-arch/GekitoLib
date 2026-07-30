@@ -97,7 +97,7 @@ docs/contents.md        # 库内容文档（唯一权威）
 
 ## 许可
 
-待定。
+[MIT](LICENSE)
 
 ## 致谢
 
