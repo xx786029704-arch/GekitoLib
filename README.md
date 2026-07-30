@@ -1,6 +1,6 @@
 # GekitoLib（激类库）
 
-Slay the Spire 2 共享机制库 Mod — 把多个角色 Mod 会重复实现的通用机制收敛到同一处。
+Slay the Spire 2 激突要塞吧共享机制库 — 把多个角色 Mod 会重复实现的通用机制收敛到同一处。
 
 基于 [BaseLib](https://github.com/Alchyr/BaseLib)，游戏为 Godot 4.5.1 (MegaDot) + C# (.NET 9)。
 
