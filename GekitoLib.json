@@ -1,0 +1,14 @@
+{
+  "id": "GekitoLib",
+  "name": "GekitoLib",
+  "author": "极限EMK",
+  "description": "激类库 - Slay the Spire 2 共享机制库（焊接连锁 / 互斥姿态框架 / 临时属性能力）",
+  "version": "v0.1.0",
+  "min_game_version": "0.107.0",
+  "has_pck": true,
+  "has_dll": true,
+  "dependencies": [
+    {"id": "BaseLib", "min_version": "3.3.8"}
+  ],
+  "affects_gameplay": true
+}
