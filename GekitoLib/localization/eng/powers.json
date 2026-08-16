@@ -1,0 +1,8 @@
+{
+  "GEKITOLIB-CORPSE_EXPLOSION_POWER.title": "Corpse Explosion",
+  "GEKITOLIB-CORPSE_EXPLOSION_POWER.description": "When this enemy dies, deal damage equal to its Max HP times its stacks to all enemies.",
+  "GEKITOLIB-CORPSE_EXPLOSION_POWER.smartDescription": "When this enemy dies, deal damage equal to its Max HP times [blue]{Amount}[/blue] to all enemies.",
+  "GEKITOLIB-LAYERED_ARMOR_POWER.title": "Plated Armor",
+  "GEKITOLIB-LAYERED_ARMOR_POWER.description": "At the end of your turn, gain Block equal to its stacks.\nWhen you take unblocked attack damage, its stacks decrease by 1.",
+  "GEKITOLIB-LAYERED_ARMOR_POWER.smartDescription": "At the end of your turn, gain [blue]{Amount}[/blue] Block.\nWhen you take unblocked attack damage, its stacks decrease by 1."
+}

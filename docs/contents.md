@@ -21,7 +21,7 @@
 
 | 成员 | 说明 |
 |------|------|
-| `GekitoLibKeywords.Weld` | 共享焊接关键词（`[CustomEnum]` 注入，所有 Mod 共用同一实例，跨 Mod 的焊接牌可互相连锁）。本地化 key：`GEKITOLIB-WELD` |
+| `GekitoLibKeywords.Weld` | 共享焊接关键词（`[CustomEnum]` 注入，所有 Mod 共用同一实例，跨 Mod 的焊接牌可互相连锁；定义于 `GekitoLib.Keywords`）。本地化 key：`GEKITOLIB-WELD` |
 | `KeywordChainPlay` | 连锁引擎。内置已注册 Weld；其他 Mod 可用 `KeywordChainPlay.Register(keyword, piles...)` 注册自己的连锁关键词（piles 缺省为 手牌/弃牌堆/抽牌堆） |
 | `DaoGuan`（`GekitoLib.Enchantments`） | 导管附魔：为攻击/技能牌添加「焊接」关键词。本地化 key：`GEKITOLIB-DAO_GUAN` |
 
@@ -84,11 +84,18 @@ public async Task AfterEnterStance(PlayerChoiceContext choiceContext, Creature c
 
 ## 3. 临时属性能力 — `GekitoLib.Powers.TemporaryStatPower<TStatPower>`
 
-**机制**：能力存续期间给予宿主等量的另一属性能力（力量/敏捷等），本能力被移除时等额回收（`AfterApplied`/`AfterRemoved` 对称结算，`silent: true` 不播图标弹跳）。
+**机制**：能力存续期间给予宿主等量的另一属性能力（力量/敏捷等），本能力被移除时等额回收（`AfterApplied`/`AfterRemoved` 对称结算，`silent: true` 不播图标弹跳）。叠层/减层时内部属性随层数差值实时同步，移除时按当前层数回收，不会出现内部属性越过 0 翻转。
 
 - 默认临时属性数值 = 本能力层数（`Amount`）；需与层数解耦时重写 `protected virtual decimal TempAmount`（如改用 `DynamicVars`）。
 - 派生类需要额外的进入/退出效果时重写 `AfterApplied`/`AfterRemoved` 并调用 `base.`。
 - 图标路径等 `CustomPowerModel` 成员由派生类自行重写（本基类不管美术）。
+
+**实现要点**（改动机制前必读）：
+- 叠层同步在 `AfterPowerAmountChanged` 中完成，两个过滤条件缺一不可：
+  - `power != this`：内部 `TStatPower` 的 Apply 也会触发全局 `Hook.AfterPowerAmountChanged`，必须过滤，防止内部属性变化引发连锁误同步（死循环）。
+  - `amount == Amount`：首次应用时 `AfterApplied` 已同步过，随后钩子会带相同的量再触发一次，跳过可防止双重结算。
+- 参考实现：原版 `TemporaryStrengthPower` / BaseLib `CustomTemporaryPowerModel` 的 `AfterPowerAmountChanged` 均为同款「差值同步 + 双条件过滤」模式。
+- `StackType` 使用方通常设为 `Counter`（叠层才有意义）；`Single` 等不叠层的用法不受此同步影响。
 
 **典型用法**：
 
@@ -113,9 +120,76 @@ public class MyRagePower : TemporaryStatPower<StrengthPower>
 }
 ```
 
+## 4. 沉底词条 — `GekitoLib.Keywords`
+
+**机制**：带 `GekitoLibKeywords.Bottom` 关键词的卡牌在战斗开始（初始洗牌）时被放到初始抽牌堆底部。使用方式与焊接等关键词完全一致——在卡牌 `CanonicalKeywords` 中显式声明即可，**无需实现接口或覆写基类**；行为由 `BottomPlaceCardPatches` 以 Harmony Postfix 全局实现。
+
+**组成**：
+
+| 成员 | 说明 |
+|------|------|
+| `GekitoLibKeywords.Bottom` | 共享「沉底」关键词（`[CustomEnum]` 注入，所有 Mod 共用同一实例）。本地化 key：`GEKITOLIB-BOTTOM` |
+| `BottomPlaceCardPatches` | 全局实现：`ModifyShuffleOrder` Postfix（检测卡牌带 Bottom 关键词则初始洗牌沉底，幂等） |
+
+**实现要点**（改动机制前必读）：
+- Postfix 是**追加式**（不跳过原方法），不覆盖使用方自身的 `ModifyShuffleOrder` 覆写逻辑；`cards.Remove` 失败（已被使用方逻辑移走）则静默跳过，幂等。
+- 沉底语义限定「初始洗牌」（`isInitialShuffle == true`），战斗中洗牌不受影响。
+- 关键词位置为 `AutoKeywordPosition.After`；从旧 Mod 迁入时卡牌关键词 ID 会变化，旧存档兼容性按「通用注意事项」处理。
+
+**典型用法**：
+
+```csharp
+// 使用方卡牌：在 CanonicalKeywords 中显式声明（与焊接一致）
+public sealed class MyRitualCard : MyBaseCard
+{
+    public override IEnumerable<CardKeyword> CanonicalKeywords => [GekitoLibKeywords.Bottom];
+}
+```
+
+## 5. 尸爆术 — `GekitoLib.Powers.CorpseExplosionPower`
+
+**机制**：持有者死亡时，对所有其他敌人造成「持有者最大生命值 × 层数」的伤害（参考 StS1 的 Corpse Explosion）。
+
+**组成**：
+
+| 成员 | 说明 |
+|------|------|
+| `CorpseExplosionPower` | Debuff / Counter。`AfterDeath` 中结算，伤害 `ValueProp.Unpowered`（不吃力量等修正）。本地化 key：`GEKITOLIB-CORPSE_EXPLOSION_POWER` |
+
+**实现要点**：
+- `wasRemovalPrevented` 为 true（死亡被阻止，如重生）时不触发；目标排除持有者自身且仅存活敌人。
+- 图标：`images/powers/corpseexplosionpower.png`（小）+ `big/`（大）。
+
+**典型用法**：
+
+```csharp
+await PowerCmd.Apply<CorpseExplosionPower>(choiceContext, target, stacks, Owner.Creature, this);
+```
+
+## 6. 多层护甲 — `GekitoLib.Powers.LayeredArmorPower`
+
+**机制**：StS1 的 Plated Armor——回合结束时获得「层数」点格挡；受到未被格挡的攻击伤害后层数 -1（不会像 StS2 镀层那样每回合衰减）。
+
+**组成**：
+
+| 成员 | 说明 |
+|------|------|
+| `LayeredArmorPower` | Buff / Counter。`BeforeSideTurnEndEarly` 获得格挡、`AfterDamageReceived` 未格挡攻击伤害后 `Decrement`。本地化 key：`GEKITOLIB-LAYERED_ARMOR_POWER` |
+
+**实现要点**：
+- 只对 `ValueProp.Move` 的攻击伤害（且非自身/非无来源）触发减层；`result.UnblockedDamage <= 0` 不触发。
+- 自带 StS1 风格音效（`audio/powers/layered_armor.ogg`）与格挡 HoverTip。
+- 图标：`images/powers/layeredarmor.png`（小）+ `big/`（大）。
+
+**典型用法**：
+
+```csharp
+await PowerCmd.Apply<LayeredArmorPower>(choiceContext, Owner.Creature, stacks, Owner.Creature, this);
+```
+
 ## 通用注意事项
 
 - **ID 稳定性**：关键词/附魔的本地化 key 以 `GEKITOLIB-` 为前缀，是所有使用方 Mod 共用的公共资源，改名即破坏性变更。从别的 Mod 迁入本库的内容其 ID 会变化，旧存档中已附魔的卡牌会失效——EA 阶段可接受，发布说明需注明。
 - **加载顺序**：使用方 Mod 声明 `dependencies` 后，游戏保证 GekitoLib 先于其初始化（`StanceRegistry.Register` 在自己 Mod 的 ModInitializer 中调用是安全的）。
 - **构建顺序**：本库 dll 输出到游戏 `mods/GekitoLib/`；使用方 Mod 通过 HintPath 引用该 dll，因此**必须先构建 GekitoLib 再构建使用方 Mod**。
-- 本库的 Harmony patch 只有 `KeywordChainPlay` 内部的 `CardModel.OnPlayWrapper` Postfix，与使用方 Mod 自身的 patch 无冲突。
+- 本库的 Harmony patch：`KeywordChainPlay` 内部的 `CardModel.OnPlayWrapper` Postfix、`BottomPlaceCardPatches`（`GekitoLib.Patches`）的 `CardModel.ModifyShuffleOrder` Postfix，均为追加式，与使用方 Mod 自身的 patch 无冲突。
