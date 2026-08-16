@@ -1,4 +1,6 @@
 {
   "GEKITOLIB-WELD.title": "Weld",
-  "GEKITOLIB-WELD.description": "When you play this card, also play all Weld cards in your hand, discard pile, and draw pile."
+  "GEKITOLIB-WELD.description": "When you play this card, also play all Weld cards in your hand, discard pile, and draw pile.",
+  "GEKITOLIB-BOTTOM.title": "Bottom",
+  "GEKITOLIB-BOTTOM.description": "At the start of combat, place this card at the bottom of the initial draw pile."
 }

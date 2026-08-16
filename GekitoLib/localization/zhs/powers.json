@@ -1,0 +1,8 @@
+{
+  "GEKITOLIB-CORPSE_EXPLOSION_POWER.title": "尸爆术",
+  "GEKITOLIB-CORPSE_EXPLOSION_POWER.description": "当这名敌人死亡时，对所有敌人造成等于其最大生命值层数倍的伤害。",
+  "GEKITOLIB-CORPSE_EXPLOSION_POWER.smartDescription": "当这名敌人死亡时，对所有敌人造成等于其最大生命值[blue]{Amount}[/blue]倍的伤害。",
+  "GEKITOLIB-LAYERED_ARMOR_POWER.title": "多层护甲",
+  "GEKITOLIB-LAYERED_ARMOR_POWER.description": "在你的回合结束时获得对应层数的格挡。\n受到攻击伤害而失去生命时，其层数将会减少1。",
+  "GEKITOLIB-LAYERED_ARMOR_POWER.smartDescription": "在你的回合结束时获得[blue]{Amount}[/blue]点格挡。\n受到攻击伤害而失去生命时，其层数将会减少1。"
+}

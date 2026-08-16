@@ -1,4 +1,6 @@
 {
   "GEKITOLIB-WELD.title": "焊接",
-  "GEKITOLIB-WELD.description": "打出此牌时，同时打出你手牌、弃牌堆与抽牌堆中的所有焊接牌。"
+  "GEKITOLIB-WELD.description": "打出此牌时，同时打出你手牌、弃牌堆与抽牌堆中的所有焊接牌。",
+  "GEKITOLIB-BOTTOM.title": "沉底",
+  "GEKITOLIB-BOTTOM.description": "战斗开始时，将这张牌放在初始抽牌堆的底部。"
 }
