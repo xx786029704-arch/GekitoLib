@@ -6,7 +6,7 @@ Slay the Spire 2 激突要塞吧共享机制库 — 把多个角色 Mod 会重�
 
 ## 库内容
 
-详见 [`docs/contents.md`](docs/contents.md)（API、实现要点、使用示例）。
+详见 [`docs/contents.md`](docs/contents.md)（API、实现要点、使用示例）。当前包含：焊接连锁、互斥姿态框架、临时属性能力（TemporaryStatPower）、沉底词条、尸爆术、多层护甲、色彩哲学家候选池、初始卡/初始遗物升级链、星图标换皮框架。
 
 ## 作为依赖使用
 
@@ -15,7 +15,7 @@ Slay the Spire 2 激突要塞吧共享机制库 — 把多个角色 Mod 会重�
 ```json
 "dependencies": [
   {"id": "BaseLib", "min_version": "3.3.8"},
-  {"id": "GekitoLib", "min_version": "0.1.0"}
+  {"id": "GekitoLib", "min_version": "0.3.0"}
 ]
 ```
 

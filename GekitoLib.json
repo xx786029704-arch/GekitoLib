@@ -1,14 +1,14 @@
-{
+﻿{
   "id": "GekitoLib",
   "name": "GekitoLib",
   "author": "极限EMK",
   "description": "激类库 - Slay the Spire 2 激突要塞吧共享机制库",
-  "version": "v0.2.0",
+  "version": "v0.3.0",
   "min_game_version": "0.107.0",
   "has_pck": true,
   "has_dll": true,
   "dependencies": [
-    {"id": "BaseLib", "min_version": "3.3.8"}
+    {"id": "BaseLib", "min_version": "3.4.5"}
   ],
   "affects_gameplay": true
 }
